@@ -36,6 +36,7 @@
 #include <MoltenVKShaderConverter/SPIRVToMSLConverter.h>
 
 #import "CAMetalLayer+MoltenVK.h"
+#include "vulkan/vulkan_core.h"
 
 #include <sys/stat.h>
 #include <cmath>
@@ -427,6 +428,11 @@ void MVKPhysicalDevice::getFeatures(VkPhysicalDeviceFeatures2* features) {
 				vmmFeatures->vulkanMemoryModel = supportedFeats12.vulkanMemoryModel;
 				vmmFeatures->vulkanMemoryModelDeviceScope = supportedFeats12.vulkanMemoryModelDeviceScope;
 				vmmFeatures->vulkanMemoryModelAvailabilityVisibilityChains = supportedFeats12.vulkanMemoryModelAvailabilityVisibilityChains;
+				break;
+			}
+			case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ZERO_INITIALIZE_WORKGROUP_MEMORY_FEATURES: {
+				auto* zerInitWorkgroupMemFeatures = (VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeatures*)next;
+				zerInitWorkgroupMemFeatures->shaderZeroInitializeWorkgroupMemory = true;
 				break;
 			}
 			case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_FEATURES_KHR: {
