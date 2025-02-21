@@ -86,10 +86,10 @@ MVKMTLFunction MVKShaderLibrary::getMTLFunction(const VkSpecializationInfo* pSpe
 			const VkSpecializationMapEntry* pMapEntry = &pSpecializationInfo->pMapEntries[specIdx];
 			uint32_t const_id = pMapEntry->constantID;
 			MVKShaderMacroValue macro_value = {};
-			size_t size = min(pMapEntry->size, sizeof(macro_value.value));
+			// size_t size = min(pMapEntry->size, sizeof(macro_value.value));
 
-			memcpy(&macro_value.value, (char *)pSpecializationInfo->pData + pMapEntry->offset, size);
-			macro_value.size = size;
+			memcpy(&macro_value.value.ui32, (char *)pSpecializationInfo->pData + pMapEntry->offset, 4);
+			macro_value.size = 4;
 			if (_shaderConversionResultInfo.specializationMacros.find(const_id) != _shaderConversionResultInfo.specializationMacros.end()) {
 				spec_list.push_back(make_pair(const_id, macro_value));
 			}
@@ -573,7 +573,8 @@ id<MTLLibrary> MVKShaderLibraryCompiler::newMTLLibrary(NSString* mslSourceCode,
 					NSNumber *macro_values[macro_count];
 					for (uint32_t i = 0; i < specializationMacroDef.size(); i++) {
 						macro_names[i] = @(specializationMacroDef[i].first.name.c_str());
-						macro_values[i] = getMacroValue(specializationMacroDef[i].first, specializationMacroDef[i].second);
+						macro_values[i] = @(specializationMacroDef[i].second.value.ui32);
+						// getMacroValue(specializationMacroDef[i].first, specializationMacroDef[i].second);
 					}
 					mtlCompileOptions.preprocessorMacros = [NSDictionary dictionaryWithObjects: macro_values
 																					   forKeys: macro_names
