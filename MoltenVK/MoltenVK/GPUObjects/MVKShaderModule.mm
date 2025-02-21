@@ -80,17 +80,20 @@ MVKMTLFunction MVKShaderLibrary::getMTLFunction(const VkSpecializationInfo* pSpe
 	// If specialization happens on constants mapped to macro, find or compile a library variant
 	// with proper macro definition instead of the "generic" library
 	if (pSpecializationInfo && _maySpecializeWithMacro) {
+		string msl;
+		decompressMSL(msl);
 		// Create the list of macro-value mapping
 		vector<pair<uint32_t, MVKShaderMacroValue>> spec_list;
 		for (uint32_t specIdx = 0; specIdx < pSpecializationInfo->mapEntryCount; specIdx++) {
 			const VkSpecializationMapEntry* pMapEntry = &pSpecializationInfo->pMapEntries[specIdx];
 			uint32_t const_id = pMapEntry->constantID;
 			MVKShaderMacroValue macro_value = {};
+			string const_name = "SPIRV_CROSS_CONSTANT_ID_" + std::to_string(const_id);
 			// size_t size = min(pMapEntry->size, sizeof(macro_value.value));
 
 			memcpy(&macro_value.value.ui32, (char *)pSpecializationInfo->pData + pMapEntry->offset, 4);
 			macro_value.size = 4;
-			if (_shaderConversionResultInfo.specializationMacros.find(const_id) != _shaderConversionResultInfo.specializationMacros.end()) {
+			if (msl.find(const_name) != string::npos) {
 				spec_list.push_back(make_pair(const_id, macro_value));
 			}
 		}
@@ -236,10 +239,9 @@ void MVKShaderLibrary::compileLibrary(const string& msl,
 	vector<pair<MSLSpecializationMacroInfo, MVKShaderMacroValue>> macro_def;
 	if (specializationMacroDef) {
 		for (auto& def: *specializationMacroDef) {
-			const auto& macro_name_iter = _shaderConversionResultInfo.specializationMacros.find(def.first);
-			if (macro_name_iter != _shaderConversionResultInfo.specializationMacros.end()) {
-				macro_def.push_back(make_pair(macro_name_iter->second, def.second));
-			}
+			MSLSpecializationMacroInfo info;
+			info.name = "SPIRV_CROSS_CONSTANT_ID_" + std::to_string(def.first);
+			macro_def.push_back(make_pair(info, def.second));
 		}
 	}
 
