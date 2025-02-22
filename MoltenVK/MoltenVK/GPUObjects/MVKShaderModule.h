@@ -55,15 +55,7 @@ private:
 /** A MVKMTLFunction indicating an invalid MTLFunction. The mtlFunction member is nil. */
 const MVKMTLFunction MVKMTLFunctionNull(nil, mvk::SPIRVToMSLConversionResultInfo(), MTLSizeMake(1, 1, 1));
 
-typedef struct MVKShaderMacroValue {
-	uint32_t value;
-	size_t size;
-
-	inline bool operator<(const MVKShaderMacroValue& other) const {
-		return value < other.value ||
-			   (value == other.value && size < other.size);
-	}
-} MVKShaderMacroValue;
+typedef uint32_t MVKShaderMacroValue;
 
 /**
  * Wraps a single MTLLibrary or a set of MTLLibrary variants with macro-based specialization

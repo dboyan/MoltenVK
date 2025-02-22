@@ -87,12 +87,10 @@ MVKMTLFunction MVKShaderLibrary::getMTLFunction(const VkSpecializationInfo* pSpe
 		for (uint32_t specIdx = 0; specIdx < pSpecializationInfo->mapEntryCount; specIdx++) {
 			const VkSpecializationMapEntry* pMapEntry = &pSpecializationInfo->pMapEntries[specIdx];
 			uint32_t const_id = specIdx;
-			MVKShaderMacroValue macro_value = {};
+			MVKShaderMacroValue macro_value = *(uint32_t *)((char *)pSpecializationInfo->pData + pMapEntry->offset);
 			string const_name = "SPIRV_CROSS_CONSTANT_ID_" + std::to_string(const_id);
 			// size_t size = min(pMapEntry->size, sizeof(macro_value.value));
 
-			memcpy(&macro_value.value, (char *)pSpecializationInfo->pData + pMapEntry->offset, 4);
-			macro_value.size = 4;
 			if (msl.find(const_name) != string::npos) {
 				spec_list.push_back(make_pair(const_id, macro_value));
 			}
@@ -575,7 +573,7 @@ id<MTLLibrary> MVKShaderLibraryCompiler::newMTLLibrary(NSString* mslSourceCode,
 					NSNumber *macro_values[macro_count];
 					for (uint32_t i = 0; i < specializationMacroDef.size(); i++) {
 						macro_names[i] = @(specializationMacroDef[i].first.name.c_str());
-						macro_values[i] = @(specializationMacroDef[i].second.value);
+						macro_values[i] = @(specializationMacroDef[i].second);
 						// getMacroValue(specializationMacroDef[i].first, specializationMacroDef[i].second);
 					}
 					mtlCompileOptions.preprocessorMacros = [NSDictionary dictionaryWithObjects: macro_values
@@ -599,7 +597,7 @@ id<MTLLibrary> MVKShaderLibraryCompiler::newMTLLibrary(NSString* mslSourceCode,
 
 NSNumber *MVKShaderLibraryCompiler::getMacroValue(const MSLSpecializationMacroInfo& info,
 												  const MVKShaderMacroValue& value) {
-	NSNumber *result = [NSNumber numberWithUnsignedInt: value.value];
+	NSNumber *result = [NSNumber numberWithUnsignedInt: value];
 	return result;
 }
 
