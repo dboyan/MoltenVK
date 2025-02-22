@@ -56,23 +56,12 @@ private:
 const MVKMTLFunction MVKMTLFunctionNull(nil, mvk::SPIRVToMSLConversionResultInfo(), MTLSizeMake(1, 1, 1));
 
 typedef struct MVKShaderMacroValue {
-	union {
-		int8_t si8;
-		uint8_t ui8;
-		int16_t si16;
-		uint16_t ui16;
-		int32_t si32;
-		uint32_t ui32;
-		int64_t si64;
-		uint64_t ui64;
-		float f32;
-		double f64;
-	} value;
+	uint32_t value;
 	size_t size;
 
 	inline bool operator<(const MVKShaderMacroValue& other) const {
-		return value.ui64 < other.value.ui64 ||
-			   (value.ui64 == other.value.ui64 && size < other.size);
+		return value < other.value ||
+			   (value == other.value && size < other.size);
 	}
 } MVKShaderMacroValue;
 

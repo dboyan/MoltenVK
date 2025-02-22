@@ -91,7 +91,7 @@ MVKMTLFunction MVKShaderLibrary::getMTLFunction(const VkSpecializationInfo* pSpe
 			string const_name = "SPIRV_CROSS_CONSTANT_ID_" + std::to_string(const_id);
 			// size_t size = min(pMapEntry->size, sizeof(macro_value.value));
 
-			memcpy(&macro_value.value.ui32, (char *)pSpecializationInfo->pData + pMapEntry->offset, 4);
+			memcpy(&macro_value.value, (char *)pSpecializationInfo->pData + pMapEntry->offset, 4);
 			macro_value.size = 4;
 			if (msl.find(const_name) != string::npos) {
 				spec_list.push_back(make_pair(const_id, macro_value));
@@ -575,7 +575,7 @@ id<MTLLibrary> MVKShaderLibraryCompiler::newMTLLibrary(NSString* mslSourceCode,
 					NSNumber *macro_values[macro_count];
 					for (uint32_t i = 0; i < specializationMacroDef.size(); i++) {
 						macro_names[i] = @(specializationMacroDef[i].first.name.c_str());
-						macro_values[i] = @(specializationMacroDef[i].second.value.ui32);
+						macro_values[i] = @(specializationMacroDef[i].second.value);
 						// getMacroValue(specializationMacroDef[i].first, specializationMacroDef[i].second);
 					}
 					mtlCompileOptions.preprocessorMacros = [NSDictionary dictionaryWithObjects: macro_values
@@ -596,56 +596,10 @@ id<MTLLibrary> MVKShaderLibraryCompiler::newMTLLibrary(NSString* mslSourceCode,
 	return [_mtlLibrary retain];
 }
 
+
 NSNumber *MVKShaderLibraryCompiler::getMacroValue(const MSLSpecializationMacroInfo& info,
 												  const MVKShaderMacroValue& value) {
-	NSNumber *result;
-
-	if (info.isFloat) {
-		if (value.size == sizeof(double)) {
-			result = [NSNumber numberWithDouble: value.value.f64];
-		} else {
-			result = [NSNumber numberWithFloat: value.value.f32];
-		}
-	} else {
-		if (info.isSigned) {
-			switch (value.size) {
-				case 1:
-					result = [NSNumber numberWithChar: value.value.si8];
-					break;
-				case 2:
-					result = [NSNumber numberWithShort: value.value.si16];
-					break;
-				case 4:
-					result = [NSNumber numberWithInt: value.value.si32];
-					break;
-				case 8:
-					result = [NSNumber numberWithLongLong: value.value.si64];
-					break;
-				default:
-					result = [NSNumber numberWithInt: value.value.si32];
-					break;
-			}
-		} else {
-			switch (value.size) {
-				case 1:
-					result = [NSNumber numberWithUnsignedChar: value.value.ui8];
-					break;
-				case 2:
-					result = [NSNumber numberWithUnsignedShort: value.value.ui16];
-					break;
-				case 4:
-					result = [NSNumber numberWithUnsignedInt: value.value.ui32];
-					break;
-				case 8:
-					result = [NSNumber numberWithUnsignedLongLong: value.value.ui64];
-					break;
-				default:
-					result = [NSNumber numberWithUnsignedInt: value.value.ui32];
-					break;
-			}
-		}
-	}
-
+	NSNumber *result = [NSNumber numberWithUnsignedInt: value.value];
 	return result;
 }
 
