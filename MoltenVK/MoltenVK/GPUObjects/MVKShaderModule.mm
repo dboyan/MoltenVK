@@ -86,7 +86,7 @@ MVKMTLFunction MVKShaderLibrary::getMTLFunction(const VkSpecializationInfo* pSpe
 		vector<pair<uint32_t, MVKShaderMacroValue>> spec_list;
 		for (uint32_t specIdx = 0; specIdx < pSpecializationInfo->mapEntryCount; specIdx++) {
 			const VkSpecializationMapEntry* pMapEntry = &pSpecializationInfo->pMapEntries[specIdx];
-			uint32_t const_id = pMapEntry->constantID;
+			uint32_t const_id = specIdx;
 			MVKShaderMacroValue macro_value = {};
 			string const_name = "SPIRV_CROSS_CONSTANT_ID_" + std::to_string(const_id);
 			// size_t size = min(pMapEntry->size, sizeof(macro_value.value));
